@@ -30,6 +30,7 @@ from ragas.metrics.collections import (
 
 from src import store
 from src.bm25 import BM25Index
+from src.citations import strip_citations
 from src.config import EVAL_JUDGE_MODEL, PROJECT_ROOT, get_openai_client
 from src.query import generate, retrieve
 
@@ -62,7 +63,9 @@ def run_pipeline(questions: list[dict], client, vectors, chunks: list[str]) -> l
                 "id": q["id"],
                 "question": q["question"],
                 "reference": q["reference"],
-                "response": generate(q["question"], contexts, client),
+                # Se evalúa la respuesta limpia: los marcadores [n] de citas no
+                # deben ensuciar las métricas.
+                "response": strip_citations(generate(q["question"], contexts, client)),
                 "retrieved_contexts": contexts,
             }
         )

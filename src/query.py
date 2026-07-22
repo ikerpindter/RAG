@@ -8,17 +8,20 @@ import argparse
 
 from . import store
 from .bm25 import BM25Index
+from .citations import CITATION_INSTRUCTIONS, render_sources
 from .config import GENERATION_MODEL, TOP_K, get_openai_client
 from .embeddings import embed_texts
 from .fusion import rrf
+from .verify import print_verification, verify_answer
 
 # Candidatos por método antes de fusionar: holgura suficiente para que RRF
 # pueda subir chunks que un método ranquea bien y el otro ignora.
 CANDIDATES_PER_METHOD = 20
 
 INSTRUCTIONS = (
+    "Responde SIEMPRE en el idioma en el que esté formulada la pregunta: "
+    "pregunta en inglés, respuesta en inglés. "
     "Respondes preguntas sobre el reporte 10-K de Lennar del año fiscal 2024. "
-    "Responde en el mismo idioma en el que esté formulada la pregunta. "
     "Responde ÚNICAMENTE con la información de los extractos proporcionados. "
     "Si la respuesta no está en los extractos, di claramente que no aparece en el "
     "contexto recuperado. No inventes cifras ni datos."
@@ -49,7 +52,7 @@ def generate(question: str, context_chunks: list[str], client) -> str:
     )
     response = client.responses.create(
         model=GENERATION_MODEL,
-        instructions=INSTRUCTIONS,
+        instructions=f"{INSTRUCTIONS} {CITATION_INSTRUCTIONS}",
         input=f"{context}\n\nPregunta: {question}",
     )
     return response.output_text
@@ -92,6 +95,11 @@ def main() -> None:
         action="store_true",
         help="imprime los rankings dense, BM25 y fusionado, y el origen del top-5",
     )
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="verifica con un LLM barato que cada afirmación citada esté respaldada",
+    )
     args = parser.parse_args()
     question = args.question.strip()
     if not question:
@@ -106,7 +114,13 @@ def main() -> None:
 
     top = retrieval["top"]
     print(f"(top-{len(top)} híbrido: dense+BM25 fusionados con RRF)\n")
-    print(generate(question, [chunks[i] for i in top], client))
+    answer = generate(question, [chunks[i] for i in top], client)
+    print(answer)
+    print()
+    print(render_sources(top, chunks))
+    if args.verify:
+        print()
+        print_verification(verify_answer(answer, top, chunks, client))
 
 
 if __name__ == "__main__":

@@ -32,6 +32,10 @@ TOP_K = 5
 EVAL_JUDGE_MODEL = "gpt-5.4-nano"
 TESTSET_GENERATOR_MODEL = "gpt-5.4-nano"
 
+# Verificador de citas (swappable): un veredicto binario por afirmación citada;
+# nano alcanza y cuesta fracciones de centavo por pregunta.
+CITATION_VERIFIER_MODEL = "gpt-5.4-nano"
+
 
 def get_openai_client():
     """Devuelve un cliente de OpenAI, o termina con un mensaje claro si falta la key."""
