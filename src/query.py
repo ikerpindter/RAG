@@ -8,7 +8,7 @@ import argparse
 
 from . import store
 from .bm25 import BM25Index
-from .citations import CITATION_INSTRUCTIONS, render_sources
+from .citations import CITATION_INSTRUCTIONS, render_sources, source_label
 from .config import GENERATION_MODEL, TOP_K, get_openai_client
 from .embeddings import embed_texts
 from .fusion import rrf
@@ -32,7 +32,7 @@ def retrieve(
     question: str,
     client,
     vectors,
-    chunks: list[str],
+    chunks: list[dict],
     bm25_index: BM25Index,
 ) -> dict:
     """Recuperación híbrida. Devuelve los rankings dense, bm25, fusionado y el top final."""
@@ -58,16 +58,16 @@ def generate(question: str, context_chunks: list[str], client) -> str:
     return response.output_text
 
 
-def print_debug(retrieval: dict) -> None:
+def print_debug(retrieval: dict, chunks: list[dict]) -> None:
     dense, bm25 = retrieval["dense"], retrieval["bm25"]
-    print("== ranking dense (chunk: coseno) ==")
+    print("== ranking dense (chunk global: coseno) ==")
     print("  " + ", ".join(f"{i}: {s:.2f}" for i, s in dense))
-    print("== ranking BM25 (chunk: score) ==")
+    print("== ranking BM25 (chunk global: score) ==")
     if bm25:
         print("  " + ", ".join(f"{i}: {s:.1f}" for i, s in bm25))
     else:
         print("  (ningún chunk contiene términos de la consulta)")
-    print("== ranking fusionado RRF (chunk: score) ==")
+    print("== ranking fusionado RRF (chunk global: score) ==")
     print("  " + ", ".join(f"{i}: {s:.4f}" for i, s in retrieval["fused"][: 2 * TOP_K]))
     dense_rank = {i: r for r, (i, _) in enumerate(dense, start=1)}
     bm25_rank = {i: r for r, (i, _) in enumerate(bm25, start=1)}
@@ -80,7 +80,7 @@ def print_debug(retrieval: dict) -> None:
             origin = f"solo dense (#{dense_rank[i]})"
         else:
             origin = f"solo bm25 (#{bm25_rank[i]})"
-        print(f"  chunk {i}: {origin}")
+        print(f"  [{source_label(chunks[i])}]: {origin}")
     print()
 
 
@@ -108,13 +108,14 @@ def main() -> None:
     vectors, chunks = store.load()
     client = get_openai_client()
 
-    retrieval = retrieve(question, client, vectors, chunks, BM25Index(chunks))
+    bm25_index = BM25Index([c["text"] for c in chunks])
+    retrieval = retrieve(question, client, vectors, chunks, bm25_index)
     if args.debug:
-        print_debug(retrieval)
+        print_debug(retrieval, chunks)
 
     top = retrieval["top"]
     print(f"(top-{len(top)} híbrido: dense+BM25 fusionados con RRF)\n")
-    answer = generate(question, [chunks[i] for i in top], client)
+    answer = generate(question, [chunks[i]["text"] for i in top], client)
     print(answer)
     print()
     print(render_sources(top, chunks))

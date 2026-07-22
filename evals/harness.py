@@ -51,13 +51,13 @@ def load_goldset(path: Path) -> list[dict]:
     return questions
 
 
-def run_pipeline(questions: list[dict], client, vectors, chunks: list[str]) -> list[dict]:
+def run_pipeline(questions: list[dict], client, vectors, chunks: list[dict]) -> list[dict]:
     """Corre cada pregunta por la MISMA tubería que usa el CLI (retrieve + generate)."""
-    bm25_index = BM25Index(chunks)
+    bm25_index = BM25Index([c["text"] for c in chunks])
     rows = []
     for q in questions:
         top = retrieve(q["question"], client, vectors, chunks, bm25_index)["top"]
-        contexts = [chunks[i] for i in top]
+        contexts = [chunks[i]["text"] for i in top]
         rows.append(
             {
                 "id": q["id"],

@@ -36,7 +36,16 @@ def extract_claims(answer: str) -> list[dict]:
         if not line:
             continue
         line = _TRAILING_MARKER_RE.sub(lambda m: m.group(2) + m.group(1), line)
-        for sentence in _SENTENCE_SPLIT_RE.split(line):
+        # Abreviaturas tipo "D.R." o "U.S." no cierran oración: si un fragmento
+        # termina en una, se re-pega con el siguiente.
+        fragments = _SENTENCE_SPLIT_RE.split(line)
+        sentences: list[str] = []
+        for fragment in fragments:
+            if sentences and re.search(r"(?:\b[A-Z]\.)+$", sentences[-1]):
+                sentences[-1] += " " + fragment
+            else:
+                sentences.append(fragment)
+        for sentence in sentences:
             sentence = sentence.strip()
             if len(sentence) < MIN_CLAIM_CHARS:
                 continue
@@ -45,7 +54,7 @@ def extract_claims(answer: str) -> list[dict]:
     return claims
 
 
-def verify_answer(answer: str, top_ids: list[int], chunks: list[str], client) -> dict:
+def verify_answer(answer: str, top_ids: list[int], chunks: list[dict], client) -> dict:
     """Verifica cada afirmación citada contra sus chunks. Devuelve veredictos y resumen."""
     results = []
     for claim in extract_claims(answer):
@@ -58,7 +67,7 @@ def verify_answer(answer: str, top_ids: list[int], chunks: list[str], client) ->
             # Marcador fuera de rango = el modelo citó un extracto inexistente.
             results.append({**claim, "verdict": "cita_invalida"})
             continue
-        cited_text = "\n\n".join(chunks[top_ids[m - 1]] for m in markers)
+        cited_text = "\n\n".join(chunks[top_ids[m - 1]]["text"] for m in markers)
         response = client.responses.create(
             model=CITATION_VERIFIER_MODEL,
             instructions=VERIFIER_INSTRUCTIONS,

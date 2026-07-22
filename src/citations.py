@@ -28,10 +28,16 @@ def strip_citations(text: str) -> str:
     return _MARKER_RE.sub("", text)
 
 
-def render_sources(top_ids: list[int], chunks: list[str]) -> str:
-    """Sección de fuentes: número de marcador, fragmento corto y id del chunk."""
+def source_label(chunk: dict) -> str:
+    """Identificador legible de la fuente: empresa + año fiscal + chunk local."""
+    return f"{chunk['company']} 10-K FY{chunk['fiscal_year']}, chunk {chunk['chunk_no']}"
+
+
+def render_sources(top_ids: list[int], chunks: list[dict]) -> str:
+    """Sección de fuentes: marcador, fuente completa y fragmento corto."""
     lines = ["Fuentes:"]
     for rank, chunk_id in enumerate(top_ids, start=1):
-        snippet = " ".join(chunks[chunk_id][:SNIPPET_CHARS].split())
-        lines.append(f"  [{rank}] (chunk {chunk_id}) {snippet}…")
+        chunk = chunks[chunk_id]
+        snippet = " ".join(chunk["text"][:SNIPPET_CHARS].split())
+        lines.append(f"  [{rank}] [{source_label(chunk)}] {snippet}…")
     return "\n".join(lines)

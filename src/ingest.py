@@ -1,4 +1,6 @@
-"""Ingesta end-to-end: descarga el 10-K, extrae texto, trocea, embebe y guarda el índice."""
+"""Ingesta multi-documento: descarga cada 10-K del corpus, extrae texto, trocea,
+embebe y guarda un índice por documento. Idempotente en dos niveles: el HTML ya
+descargado no se re-descarga y el documento ya indexado no se re-embede."""
 
 import re
 import sys
@@ -11,9 +13,8 @@ from .chunking import chunk_text
 from .config import (
     DATA_DIR,
     EMBEDDING_MODEL,
-    FILING_URL,
+    FILINGS,
     INDEX_DIR,
-    RAW_HTML_PATH,
     SEC_USER_AGENT,
     get_openai_client,
 )
@@ -24,21 +25,22 @@ from .embeddings import embed_texts
 MIN_TEXT_CHARS = 50_000
 
 
-def download() -> str:
-    if RAW_HTML_PATH.exists():
-        print(f"HTML ya descargado, se reutiliza: {RAW_HTML_PATH.name}")
-        return RAW_HTML_PATH.read_text(encoding="utf-8", errors="ignore")
-    print(f"Descargando {FILING_URL}")
+def download(doc: dict) -> str:
+    path = DATA_DIR / doc["filename"]
+    if path.exists():
+        print(f"  HTML ya descargado, se reutiliza: {path.name}")
+        return path.read_text(encoding="utf-8", errors="ignore")
+    print(f"  Descargando {doc['url']}")
     response = httpx.get(
-        FILING_URL,
+        doc["url"],
         headers={"User-Agent": SEC_USER_AGENT},
         timeout=120,
         follow_redirects=True,
     )
     response.raise_for_status()
     DATA_DIR.mkdir(exist_ok=True)
-    RAW_HTML_PATH.write_bytes(response.content)
-    print(f"Guardado en {RAW_HTML_PATH} ({len(response.content) / 1e6:.1f} MB)")
+    path.write_bytes(response.content)
+    print(f"  Guardado en {path.name} ({len(response.content) / 1e6:.1f} MB)")
     return response.text
 
 
@@ -70,24 +72,30 @@ def extract_text(html: str) -> str:
 
 def main() -> None:
     client = get_openai_client()  # valida la API key antes de trabajar
-    html = download()
-    text = extract_text(html)
-    print(f"Texto extraído: {len(text):,} caracteres")
-    if len(text) < MIN_TEXT_CHARS:
-        sys.exit(
-            "ERROR: el texto extraído es sospechosamente corto para un 10-K; "
-            "revisa el HTML en data/ antes de continuar."
+    for doc in FILINGS:
+        print(f"{doc['doc_id']} ({doc['company']} 10-K FY{doc['fiscal_year']}):")
+        if store.doc_indexed(doc["doc_id"]):
+            print("  ya indexado, se omite")
+            continue
+        html = download(doc)
+        text = extract_text(html)
+        print(f"  Texto extraído: {len(text):,} caracteres")
+        if len(text) < MIN_TEXT_CHARS:
+            sys.exit(
+                f"ERROR: el texto extraído de {doc['doc_id']} es sospechosamente "
+                "corto para un 10-K; revisa el HTML en data/ antes de continuar."
+            )
+        chunks = chunk_text(text)
+        print(f"  Chunks: {len(chunks)}")
+        vectors = embed_texts(client, chunks)
+        store.save_doc(
+            doc,
+            vectors,
+            chunks,
+            meta={"source_url": doc["url"], "embedding_model": EMBEDDING_MODEL},
         )
-    chunks = chunk_text(text)
-    print(f"Chunks: {len(chunks)}")
-    vectors = embed_texts(client, chunks)
-    store.save(
-        vectors,
-        chunks,
-        meta={"source_url": FILING_URL, "embedding_model": EMBEDDING_MODEL},
-    )
     print(
-        f"Índice guardado en {INDEX_DIR}. Ya puedes preguntar con:\n"
+        f"Índice completo en {INDEX_DIR}. Ya puedes preguntar con:\n"
         '    uv run python -m src.query "tu pregunta"'
     )
 
