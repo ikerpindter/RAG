@@ -1,8 +1,9 @@
 {
   "meta": {
-    "source": "10-K Lennar FY2024 (period 2024-11-30, filed 2025-01-23), chunks locales en data/index/chunks.json",
-    "method": "Preguntas diseñadas por Iker Pindter; respuestas extraídas manualmente del documento (sin LLM). Los campos source_passage y source_chunk son para verificación humana; el harness los ignora.",
-    "status": "pendiente de verificación por el experto"
+    "source": "Corpus de 4 10-K (Lennar FY2024/FY2023, D.R. Horton FY2024/FY2023), chunks locales en data/index/<doc_id>.json. Las preguntas 1-12 refieren a lennar-fy2024.",
+    "method": "Preguntas diseñadas por Iker Pindter; respuestas extraídas manualmente de los documentos (sin LLM). Los campos source_passage, source_chunk y source_doc son para verificación humana; el harness los ignora. En las cross-company (18-20) son arrays.",
+    "note_fiscal_years": "Los cierres fiscales difieren: Lennar 30-nov, D.R. Horton 30-sep; 'FY2024' de cada empresa no cubre el mismo periodo calendario.",
+    "status": "1-12 verificadas; 13-20 pendientes de verificación por el experto"
   },
   "questions": [
     {
@@ -88,6 +89,70 @@
       "reference": "Lennar's Financial Services segment primarily provides mortgage financing, title and closing services, primarily for buyers of Lennar's homes, as well as property and casualty insurance. The segment also originates and sells into securitizations commercial mortgage loans through its LMF Commercial business.",
       "source_passage": "Financial Services Segment | Our Financial Services reportable segment primarily provides mortgage financing, title and closing services primarily for buyers of our homes, as well as property and casualty insurance. The segment also originates and sells into securitizations commercial mortgage loans through its LMF Commercial business.",
       "source_chunk": 49
+    },
+    {
+      "id": 13,
+      "question": "What were D.R. Horton's total revenues in fiscal year 2024?",
+      "reference": "D.R. Horton's consolidated revenues in fiscal year 2024 (ended September 30, 2024) were $36,801.4 million, approximately $36.8 billion.",
+      "source_passage": "CONSOLIDATED STATEMENTS OF OPERATIONS | Year Ended September 30, | 2024 | 2023 | 2022 | (In millions, except per share data) | Revenues | $ | 36,801.4 | $ | 35,460.4 | $ | 33,480.0",
+      "source_doc": "dhi-fy2024",
+      "source_chunk": 71
+    },
+    {
+      "id": 14,
+      "question": "How many homes did D.R. Horton close in fiscal year 2024?",
+      "reference": "D.R. Horton's homebuilding operations closed 89,690 homes in the year ended September 30, 2024, with an average closing price of $378,000.",
+      "source_passage": "For the year ended September 30, 2024, our homebuilding operations closed 89,690 homes with an average closing price of $378,000.",
+      "source_doc": "dhi-fy2024",
+      "source_chunk": 2
+    },
+    {
+      "id": 15,
+      "question": "What was D.R. Horton's net income in fiscal year 2024?",
+      "reference": "Net income attributable to D.R. Horton, Inc. was $4,756.4 million (approximately $4.8 billion) in fiscal 2024, with diluted earnings per share of $14.34.",
+      "source_passage": "Net income | 4,806.0 | 4,795.2 | 5,895.6 | Net income attributable to noncontrolling interests | 49.6 | 49.5 | 38.1 | Net income attributable to D.R. Horton, Inc. | $ | 4,756.4 | $ | 4,745.7 | $ | 5,857.5 | Basic net income per common share attributable to D.R. Horton, Inc. | $ | 14.44 [diluted $14.34 según chunk 41: 'Diluted net income per common share attributable to D.R. Horton increased 4% to $14.34']",
+      "source_doc": "dhi-fy2024",
+      "source_chunk": 71
+    },
+    {
+      "id": 16,
+      "question": "How did D.R. Horton's total revenues change from fiscal 2023 to fiscal 2024?",
+      "reference": "D.R. Horton's consolidated revenues increased 4% in fiscal 2024, to $36.8 billion ($36,801.4 million) from $35.5 billion ($35,460.4 million) in fiscal 2023.",
+      "source_passage": "Consolidated Results: | • Consolidated revenues increased 4% to $36.8 billion compared to $35.5 billion. [cifras exactas en chunk 71: 36,801.4 vs 35,460.4]",
+      "source_doc": "dhi-fy2024",
+      "source_chunk": 41
+    },
+    {
+      "id": 17,
+      "question": "What was Lennar's average sales price of homes delivered in fiscal year 2023?",
+      "reference": "The average sales price of Lennar homes delivered was $446,000 in the year ended November 30, 2023, compared to $480,000 in the year ended November 30, 2022.",
+      "source_passage": "The average sales price of homes delivered was $446,000 in the year ended November 30, 2023, compared to $480,000 in the year ended November 30, 2022.",
+      "source_doc": "lennar-fy2023",
+      "source_chunk": 37
+    },
+    {
+      "id": 18,
+      "question": "Compare Lennar's and D.R. Horton's total revenues in their respective fiscal years 2024.",
+      "reference": "In their respective fiscal years 2024, D.R. Horton's total revenues were higher: $36,801.4 million (~$36.8 billion, fiscal year ended September 30, 2024) versus Lennar's $35,441,452 thousand (~$35.4 billion, fiscal year ended November 30, 2024) — a difference of roughly $1.4 billion. Note the fiscal years cover different periods: Lennar's ends November 30 and D.R. Horton's ends September 30.",
+      "source_passage": "[lennar-fy2024, chunk 72] Total revenues | 35,441,452 | 34,233,366 | 33,671,010 ||| [dhi-fy2024, chunk 71] Year Ended September 30, | 2024 | ... | Revenues | $ | 36,801.4 | $ | 35,460.4",
+      "source_doc": ["lennar-fy2024", "dhi-fy2024"],
+      "source_chunk": [72, 71]
+    },
+    {
+      "id": 19,
+      "question": "Which company closed more homes in fiscal year 2024: Lennar or D.R. Horton?",
+      "reference": "D.R. Horton closed more homes: 89,690 homes in its fiscal year ended September 30, 2024, versus Lennar's 80,210 new home deliveries (including unconsolidated entities) in its fiscal year ended November 30, 2024 — about 9,500 more. Note the fiscal years cover different periods (Horton ends September 30, Lennar November 30).",
+      "source_passage": "[dhi-fy2024, chunk 2] For the year ended September 30, 2024, our homebuilding operations closed 89,690 homes ||| [lennar-fy2024, chunk 3] New home deliveries, including deliveries from unconsolidated entities, were 80,210 in fiscal 2024",
+      "source_doc": ["dhi-fy2024", "lennar-fy2024"],
+      "source_chunk": [2, 3]
+    },
+    {
+      "id": 20,
+      "question": "What was the value of each company's homebuilding backlog at their respective fiscal year-ends in 2024?",
+      "reference": "At their respective fiscal year-ends in 2024, Lennar's backlog dollar value was $5,372,784 thousand (~$5.4 billion, 11,633 homes, at November 30, 2024), while D.R. Horton's sales order backlog value was $4.8 billion (12,180 homes, at September 30, 2024). Lennar's backlog value was higher even though D.R. Horton had more homes in backlog; the dates differ because Lennar's fiscal year ends November 30 and D.R. Horton's September 30.",
+      "source_passage": "[lennar-fy2024, chunk 48] Total | 11,633 | 14,892 | $ | 5,372,784 | 6,633,750 ||| [dhi-fy2024, chunk 9] At September 30, 2024, the value of our backlog of sales orders was $4.8 billion (12,180 homes), a decrease of 19% from $5.9 billion (15,197 homes) at September 30, 2023.",
+      "source_doc": ["lennar-fy2024", "dhi-fy2024"],
+      "source_chunk": [48, 9]
     }
   ]
 }
