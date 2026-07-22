@@ -4,4 +4,11 @@ version = "0.1.0"
 description = "RAG híbrido con evals y citations sobre reportes financieros 10-K"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "httpx>=0.28.1",
+    "lxml>=6.1.1",
+    "numpy>=2.5.1",
+    "openai>=2.46.0",
+    "python-dotenv>=1.2.2",
+]
