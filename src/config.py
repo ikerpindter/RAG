@@ -26,6 +26,12 @@ GENERATION_MODEL = "gpt-5.4-nano"
 
 TOP_K = 5
 
+# Modelos para evals (swappables desde aquí). Nano mantiene todo en centavos
+# mientras se itera con el borrador; para la corrida oficial del harness
+# conviene subir el juez a un modelo más fino (p. ej. gpt-5.6-terra).
+EVAL_JUDGE_MODEL = "gpt-5.4-nano"
+TESTSET_GENERATOR_MODEL = "gpt-5.4-nano"
+
 
 def get_openai_client():
     """Devuelve un cliente de OpenAI, o termina con un mensaje claro si falta la key."""

@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "source": "10-K Lennar FY2024 (period 2024-11-30, filed 2025-01-23), chunks locales en data/index/chunks.json",
+    "method": "Preguntas diseñadas por Iker Pindter; respuestas extraídas manualmente del documento (sin LLM). Los campos source_passage y source_chunk son para verificación humana; el harness los ignora.",
+    "status": "pendiente de verificación por el experto"
+  },
+  "questions": [
+    {
+      "id": 1,
+      "question": "What were Lennar's total revenues in fiscal year 2024?",
+      "reference": "Lennar's total revenues in fiscal year 2024 (ended November 30, 2024) were $35,441,452 thousand, approximately $35.4 billion.",
+      "source_passage": "Revenues: | Homebuilding | $ | 33,906,426 | 32,660,987 | 31,951,335 | Financial Services | 1,109,263 | 976,859 | 809,680 | Multifamily | 411,537 | 573,485 | 865,603 | Lennar Other | 14,226 | 22,035 | 44,392 | Total revenues | 35,441,452 | 34,233,366 | 33,671,010",
+      "source_chunk": 72
+    },
+    {
+      "id": 2,
+      "question": "What was the dollar value of Lennar's homebuilding backlog at November 30, 2024?",
+      "reference": "The dollar value of Lennar's backlog at November 30, 2024 was $5,372,784 thousand (approximately $5.4 billion), corresponding to 11,633 homes, with an average sales price of $462,000.",
+      "source_passage": "Backlog: | At November 30, | Homes | Dollar Value (In thousands) | Average Sales Price | 2024 | 2023 [...] Total | 11,633 | 14,892 | $ | 5,372,784 | 6,633,750 | $ | 462,000 | 445,000",
+      "source_chunk": 48
+    },
+    {
+      "id": 3,
+      "question": "How many homes did Lennar deliver in fiscal year 2024?",
+      "reference": "Lennar delivered 80,210 new homes in fiscal 2024, including deliveries from unconsolidated entities.",
+      "source_passage": "New home deliveries, including deliveries from unconsolidated entities, were 80,210 in fiscal 2024, compared to 73,087 in fiscal 2023 and 66,399 in fiscal 2022.",
+      "source_chunk": 3
+    },
+    {
+      "id": 4,
+      "question": "What was the average sales price of homes delivered in fiscal year 2024?",
+      "reference": "The average sales price of homes delivered was $423,000 in the year ended November 30, 2024, compared to $446,000 in the year ended November 30, 2023.",
+      "source_passage": "The average sales price of homes delivered was $423,000 in the year ended November 30, 2024, compared to $446,000 in the year ended November 30, 2023. The decrease [...] was primarily due to pricing to market through an increased use of incentives and product mix.",
+      "source_chunk": 45
+    },
+    {
+      "id": 5,
+      "question": "What was Lennar's net earnings in fiscal year 2024?",
+      "reference": "Net earnings attributable to Lennar were $3,932,533 thousand (approximately $3.9 billion) in fiscal 2024, or $14.31 per diluted share.",
+      "source_passage": "Net earnings (including net earnings attributable to noncontrolling interests) | 3,967,655 | 3,961,291 | 4,648,501 | Less: Net earnings attributable to noncontrolling interests | 35,122 | 22,780 | 34,376 | Net earnings attributable to Lennar | $ | 3,932,533 | 3,938,511 | 4,614,125",
+      "source_chunk": 73
+    },
+    {
+      "id": 6,
+      "question": "How did Lennar's total revenues in fiscal 2024 compare to fiscal 2023?",
+      "reference": "Total revenues increased to $35,441,452 thousand in fiscal 2024 from $34,233,366 thousand in fiscal 2023, an increase of approximately $1.2 billion (about 3.5%).",
+      "source_passage": "Total revenues | 35,441,452 | 34,233,366 | 33,671,010 (columnas: 2024, 2023, 2022)",
+      "source_chunk": 72
+    },
+    {
+      "id": 7,
+      "question": "How did home deliveries in fiscal 2024 compare to fiscal 2023?",
+      "reference": "New home deliveries increased about 10%, to 80,210 homes in the year ended November 30, 2024 from 73,087 homes in the year ended November 30, 2023.",
+      "source_passage": "were higher primarily due to a 10% increase in the number of home deliveries, partially offset by a 5% decrease in the average sales price of homes delivered. New home deliveries increased to 80,210 homes in the year ended November 30, 2024 from 73,087 homes in the year ended November 30, 2023.",
+      "source_chunk": 45
+    },
+    {
+      "id": 8,
+      "question": "What is Lennar's land-light strategy?",
+      "reference": "Lennar's land light strategy consists of reducing its years' supply of owned homesites and increasing the percentage of land it controls through options or agreements (including agreements with strategic land banks and joint ventures) rather than ownership. In connection with this strategy, Lennar expects to spin off a significant portion of its land assets to Millrose.",
+      "source_passage": "Land light strategy - We are focused on reducing our years' supply of owned homesites and increasing the percentage of land we control through options or agreements, including agreements with strategic land banks and joint ventures, rather than ownership. In connection with this strategy, we expect to spin off a significant portion of our land assets to Millrose",
+      "source_chunk": 3
+    },
+    {
+      "id": 9,
+      "question": "What are the main risk factors Lennar identifies related to the housing market?",
+      "reference": "Lennar identifies as a main housing-market risk that the market for new homes is cyclical and a continuing downturn in the homebuilding market could adversely affect its operations: the residential homebuilding industry is sensitive to changes in economic conditions and other factors such as the level of employment, consumer confidence, consumer income, product affordability, availability of financing, inflation and interest rate levels. A related risk is that if homebuyers are not able to obtain suitable mortgage financing, demand for homes and home sales revenues would be reduced.",
+      "source_passage": "The market for new homes is cyclical, and a continuing downturn in the homebuilding market could adversely affect our operations. | The residential homebuilding industry is sensitive to changes in economic conditions and other factors, such as the level of employment, consumer confidence, consumer income, product affordability, availability of financing, inflation, and interest rate levels. As a result, over the years, demand for new homes has been cyclical [ver también chunk 26: financiamiento hipotecario de compradores]",
+      "source_chunk": 20
+    },
+    {
+      "id": 10,
+      "question": "What percentage of Lennar's homesites were controlled versus owned at the end of fiscal 2024?",
+      "reference": "At November 30, 2024, 82% of Lennar's total homesites were controlled and 18% were owned (393,649 controlled homesites and 85,428 owned homesites, of 479,077 total homesites).",
+      "source_passage": "Controlled Homesites | Owned Homesites | Total Homesites [...] Total homesites | 393,649 | 85,428 | 479,077 | 1.1 | % of total homesites | 82 | % | 18 | % [corrobora chunk 4: 'At November 30, 2024, 82% of our total homesites were controlled through options with land banks, land sellers and joint ventures compared to 76% at November 30, 2023.']",
+      "source_chunk": 60
+    },
+    {
+      "id": 11,
+      "question": "What business segments does Lennar report?",
+      "reference": "Lennar's operating and reportable segments are: Homebuilding East, Homebuilding Central, Homebuilding Texas, Homebuilding West, Financial Services, Multifamily and Lennar Other.",
+      "source_passage": "the Company performed an assessment of its operating segments in accordance with ASC 280, Segment Reporting, and determined that the following are its operating and reportable segments: | Homebuilding segments: (1) East (2) Central (3) Texas (4) West | (5) Financial Services | (6) Multifamily | (7) Lennar Other",
+      "source_chunk": 91
+    },
+    {
+      "id": 12,
+      "question": "What does Lennar's Financial Services segment do?",
+      "reference": "Lennar's Financial Services segment primarily provides mortgage financing, title and closing services, primarily for buyers of Lennar's homes, as well as property and casualty insurance. The segment also originates and sells into securitizations commercial mortgage loans through its LMF Commercial business.",
+      "source_passage": "Financial Services Segment | Our Financial Services reportable segment primarily provides mortgage financing, title and closing services primarily for buyers of our homes, as well as property and casualty insurance. The segment also originates and sells into securitizations commercial mortgage loans through its LMF Commercial business.",
+      "source_chunk": 49
+    }
+  ]
+}

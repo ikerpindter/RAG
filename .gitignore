@@ -21,3 +21,6 @@ secrets/
 # Datos: los reportes 10-K no van al repo público
 data/*
 !data/README.md
+
+# Resultados efímeros de evals (la línea base versionada es baseline_hybrid.json)
+evals/results.json
