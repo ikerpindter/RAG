@@ -65,6 +65,12 @@ TESTSET_GENERATOR_MODEL = "gpt-5.4-nano"
 # nano alcanza y cuesta fracciones de centavo por pregunta.
 CITATION_VERIFIER_MODEL = "gpt-5.4-nano"
 
+# Analizador de consultas (swappable): extrae empresas/años/comparativa de la
+# pregunta para filtrar el retrieval por metadata. Una llamada corta por pregunta.
+QUERY_ANALYZER_MODEL = "gpt-5.4-nano"
+# En preguntas comparativas: chunks recuperados por empresa (total = k × empresas).
+COMPARATIVE_K_PER_COMPANY = 4
+
 
 def get_openai_client():
     """Devuelve un cliente de OpenAI, o termina con un mensaje claro si falta la key."""

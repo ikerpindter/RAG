@@ -29,7 +29,6 @@ from ragas.metrics.collections import (
 )
 
 from src import store
-from src.bm25 import BM25Index
 from src.citations import strip_citations
 from src.config import EVAL_JUDGE_MODEL, PROJECT_ROOT, get_openai_client
 from src.query import generate, retrieve
@@ -53,11 +52,10 @@ def load_goldset(path: Path) -> list[dict]:
 
 def run_pipeline(questions: list[dict], client, vectors, chunks: list[dict]) -> list[dict]:
     """Corre cada pregunta por la MISMA tubería que usa el CLI (retrieve + generate)."""
-    bm25_index = BM25Index([c["text"] for c in chunks])
     rows = []
     for q in questions:
-        top = retrieve(q["question"], client, vectors, chunks, bm25_index)["top"]
-        contexts = [chunks[i]["text"] for i in top]
+        retrieval = retrieve(q["question"], client, vectors, chunks)
+        top = retrieval["top"]
         rows.append(
             {
                 "id": q["id"],
@@ -65,8 +63,14 @@ def run_pipeline(questions: list[dict], client, vectors, chunks: list[dict]) -> 
                 "reference": q["reference"],
                 # Se evalúa la respuesta limpia: los marcadores [n] de citas no
                 # deben ensuciar las métricas.
-                "response": strip_citations(generate(q["question"], contexts, client)),
-                "retrieved_contexts": contexts,
+                "response": strip_citations(
+                    generate(q["question"], [chunks[i] for i in top], client)
+                ),
+                "retrieved_contexts": [chunks[i]["text"] for i in top],
+                # Qué detectó el analizador: si una pregunta empeora en el
+                # antes/después, lo primero a revisar es si la clasificó mal.
+                "query_analysis": retrieval["analysis"],
+                "retrieval_mode": retrieval["mode"],
             }
         )
         print(f"  pipeline [{q['id']}]: {q['question'][:70]}")

@@ -3,6 +3,7 @@
     "source": "Corpus de 4 10-K (Lennar FY2024/FY2023, D.R. Horton FY2024/FY2023), chunks locales en data/index/<doc_id>.json. Las preguntas 1-12 refieren a lennar-fy2024.",
     "method": "Preguntas diseñadas por Iker Pindter; respuestas extraídas manualmente de los documentos (sin LLM). Los campos source_passage, source_chunk y source_doc son para verificación humana; el harness los ignora. En las cross-company (18-20) son arrays.",
     "note_fiscal_years": "Los cierres fiscales difieren: Lennar 30-nov, D.R. Horton 30-sep; 'FY2024' de cada empresa no cubre el mismo periodo calendario.",
+    "note_rewording": "q4 y q7 se reformularon (2026-07-22) para nombrar a Lennar explícitamente: al expandir el corpus a 4 documentos quedaron ambiguas (no nombraban empresa) y el query analysis las trataba, con razón, como multi-empresa. Las references no cambiaron (ya eran de Lennar y estaban verificadas). El caso multi-empresa lo cubren las preguntas 18-20 a propósito.",
     "status": "1-12 verificadas; 13-20 pendientes de verificación por el experto"
   },
   "questions": [
@@ -29,7 +30,7 @@
     },
     {
       "id": 4,
-      "question": "What was the average sales price of homes delivered in fiscal year 2024?",
+      "question": "What was Lennar's average sales price of homes delivered in fiscal year 2024?",
       "reference": "The average sales price of homes delivered was $423,000 in the year ended November 30, 2024, compared to $446,000 in the year ended November 30, 2023.",
       "source_passage": "The average sales price of homes delivered was $423,000 in the year ended November 30, 2024, compared to $446,000 in the year ended November 30, 2023. The decrease [...] was primarily due to pricing to market through an increased use of incentives and product mix.",
       "source_chunk": 45
@@ -50,7 +51,7 @@
     },
     {
       "id": 7,
-      "question": "How did home deliveries in fiscal 2024 compare to fiscal 2023?",
+      "question": "How did Lennar's home deliveries in fiscal 2024 compare to fiscal 2023?",
       "reference": "New home deliveries increased about 10%, to 80,210 homes in the year ended November 30, 2024 from 73,087 homes in the year ended November 30, 2023.",
       "source_passage": "were higher primarily due to a 10% increase in the number of home deliveries, partially offset by a 5% decrease in the average sales price of homes delivered. New home deliveries increased to 80,210 homes in the year ended November 30, 2024 from 73,087 homes in the year ended November 30, 2023.",
       "source_chunk": 45
