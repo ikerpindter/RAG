@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "beautifulsoup4>=4.15.0",
+    "cohere>=7.0.7",
     "httpx>=0.28.1",
     "langchain-community>=0.3,<0.4",
     "langchain-openai>=0.3,<1",

@@ -13,12 +13,15 @@ from .citations import CITATION_INSTRUCTIONS, render_sources, source_label
 from .config import (
     COMPARATIVE_K_PER_COMPANY,
     GENERATION_MODEL,
+    RERANK_POOL,
+    RERANKER_ENABLED,
     TOP_K,
     get_openai_client,
 )
 from .embeddings import embed_texts
 from .fusion import rrf
 from .query_analysis import analyze_query
+from .rerank import rerank as rerank_candidates
 
 # Candidatos por método antes de fusionar: holgura suficiente para que RRF
 # pueda subir chunks que un método ranquea bien y el otro ignora.
@@ -59,7 +62,16 @@ def _hybrid_rank(
     bm25_index = BM25Index([chunks[i]["text"] for i in allowed])
     bm25 = [(allowed[i], score) for i, score in bm25_index.search(question, k=n_candidates)]
     fused = rrf([[i for i, _ in dense], [i for i, _ in bm25]])
-    return {"dense": dense, "bm25": bm25, "fused": fused, "top": [i for i, _ in fused[:k]]}
+    result = {"dense": dense, "bm25": bm25, "fused": fused}
+    if RERANKER_ENABLED:
+        # El pool RRF pasa al reranker; con el flag apagado el pipeline queda
+        # exactamente como antes (grupo de control).
+        pool = [i for i, _ in fused[:RERANK_POOL]]
+        reranked = rerank_candidates(question, pool, chunks, top_k=k)
+        result.update(pre_rerank=pool, reranked=reranked, top=[i for i, _ in reranked])
+    else:
+        result["top"] = [i for i, _ in fused[:k]]
+    return result
 
 
 def retrieve(question: str, client, vectors, chunks: list[dict]) -> dict:
@@ -110,6 +122,11 @@ def _print_rankings(result: dict, chunks: list[dict]) -> None:
         print("    " + ", ".join(f"{i}: {s:.1f}" for i, s in bm25))
     else:
         print("    (ningún chunk contiene términos de la consulta)")
+    if "reranked" in result:
+        print("  pool pre-rerank (orden RRF):")
+        print("    " + ", ".join(str(i) for i in result["pre_rerank"]))
+        print("  post-rerank (chunk global: relevance):")
+        print("    " + ", ".join(f"{i}: {s:.3f}" for i, s in result["reranked"]))
     dense_rank = {i: r for r, (i, _) in enumerate(dense, start=1)}
     bm25_rank = {i: r for r, (i, _) in enumerate(bm25, start=1)}
     print("  top final y su origen:")

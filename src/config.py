@@ -71,6 +71,14 @@ QUERY_ANALYZER_MODEL = "gpt-5.4-nano"
 # En preguntas comparativas: chunks recuperados por empresa (total = k × empresas).
 COMPARATIVE_K_PER_COMPANY = 4
 
+# Reranker (Cohere). Con RERANKER_ENABLED = False el pipeline queda exactamente
+# como antes del reranker: ese es el grupo de control. Modelo verificado en la
+# doc oficial de Cohere (jul-2026): línea rerank-v4.0, variante pro por calidad.
+RERANKER_ENABLED = True
+RERANKER_MODEL = "rerank-v4.0-pro"
+# Candidatos del ranking RRF que entran al reranker.
+RERANK_POOL = 20
+
 
 def get_openai_client():
     """Devuelve un cliente de OpenAI, o termina con un mensaje claro si falta la key."""
