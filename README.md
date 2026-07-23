@@ -21,7 +21,7 @@ xychart-beta
     title "context_precision by stage"
     x-axis ["hybrid (1 doc)", "4x corpus", "+ query analysis", "+ reranker"]
     y-axis "context_precision" 0 --> 1
-    bar [0.755, 0.480, 0.545, 0.802]
+    line [0.755, 0.480, 0.545, 0.802]
 ```
 
 The drop in row 2 is the interesting part. Going from one filing to four (Lennar and D.R. Horton, FY2023 and FY2024) made the problem realistic: consecutive-year filings from the same company are textual near-twins, and retrieval quality collapsed until the pipeline learned to tell them apart. Also worth knowing: the first row uses an easier, smaller gold set (12 questions, single document), so it is not directly comparable to the other three.
