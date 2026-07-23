@@ -55,9 +55,10 @@ GENERATION_MODEL = "gpt-5.4-nano"
 
 TOP_K = 5
 
-# Modelos para evals (swappables desde aquí). Nano mantiene todo en centavos
-# mientras se itera con el borrador; para la corrida oficial del harness
-# conviene subir el juez a un modelo más fino (p. ej. gpt-5.6-terra).
+# Modelos para evals (swappables desde aquí). Default de desarrollo: nano, para
+# que un smoke test cueste centavos. La corrida oficial (baseline_official.json)
+# se corrió subiendo el juez a gpt-5.6-terra ($2.50/$15 por 1M tokens, jul-2026):
+# ~$1.76 las 20 preguntas. No dejar terra como default.
 EVAL_JUDGE_MODEL = "gpt-5.4-nano"
 TESTSET_GENERATOR_MODEL = "gpt-5.4-nano"
 

@@ -12,6 +12,7 @@ I froze every architecture stage as a versioned baseline. Each file under [`eval
 | [4x corpus](evals/baseline_full_corpus.json) | 4 docs | 20 | 0.810 | 0.809 | 0.480 | 0.613 |
 | [+ query analysis](evals/baseline_smart_retrieval.json) | 4 docs | 20 | 0.921 | 0.875 | 0.545 | 0.738 |
 | [+ reranker](evals/baseline_reranker.json) | 4 docs | 20 | 0.965 | 0.932 | 0.802 | 0.912 |
+| [Official run (terra judge)](evals/baseline_official.json) | 4 docs | 20 | 0.973 | 0.948 | 0.938 | 0.963 |
 
 Here is the context_precision curve on its own, since it tells the story best:
 
@@ -24,7 +25,7 @@ xychart-beta
     line [0.755, 0.480, 0.545, 0.802]
 ```
 
-The drop in row 2 is the interesting part. Going from one filing to four (Lennar and D.R. Horton, FY2023 and FY2024) made the problem realistic: consecutive-year filings from the same company are textual near-twins, and retrieval quality collapsed until the pipeline learned to tell them apart. Also worth knowing: the first row uses an easier, smaller gold set (12 questions, single document), so it is not directly comparable to the other three.
+The drop in row 2 is the interesting part. Going from one filing to four (Lennar and D.R. Horton, FY2023 and FY2024) made the problem realistic: consecutive-year filings from the same company are textual near-twins, and retrieval quality collapsed until the pipeline learned to tell them apart. Also worth knowing: the first row uses an easier, smaller gold set (12 questions, single document), so it is not directly comparable to the other three. The last row is not a new pipeline stage: it is the exact same system as the reranker row, re-scored with a stronger judge (`gpt-5.4-nano` → `gpt-5.6-terra`), so its deltas measure judge quality, not architecture.
 
 ## What makes this different
 
@@ -62,7 +63,7 @@ optional --verify: per-claim support check against the cited chunks
 | Query analysis | OpenAI, strict JSON + catalog validation | `gpt-5.4-nano` |
 | Citation verification | OpenAI, binary verdict per claim | `gpt-5.4-nano` |
 | Reranker | Cohere (`RERANKER_ENABLED` flag = control group) | `rerank-v4.0-pro` |
-| Eval metrics | Ragas 0.4.3 (collections API) | judge: `gpt-5.4-nano` |
+| Eval metrics | Ragas 0.4.3 (collections API) | judge: `gpt-5.4-nano` (dev default), `gpt-5.6-terra` (official run) |
 | Vector store | numpy, one index file per document, no infra | none |
 | Keyword search | rank-bm25 (BM25Okapi) | none |
 
@@ -91,7 +92,8 @@ uv run python -m src.query "What was the dollar value of Lennar's backlog at Nov
 uv run python -m src.query "Compare Lennar and D.R. Horton total revenues in fiscal 2024." --debug
 uv run python -m src.query "How many homes did Lennar deliver in fiscal year 2024?" --verify
 
-# Eval harness over the gold set (~$0.10-0.15 per full run with the nano judge)
+# Eval harness over the gold set (~$0.10-0.15 per full run with the default nano
+# judge; the official run with the terra judge costs ~$1.76)
 uv run python -m evals.harness
 uv run python -m evals.harness --limit 2   # cheap smoke test
 
@@ -101,8 +103,8 @@ uv run pytest
 
 ## Honest limitations
 
-- **The judge is a cheap model.** `gpt-5.4-nano` runs with `temperature` forced to 1.0 (reasoning models accept no other value), which produces a documented ±0.03 run-to-run variance on context metrics plus occasional verdict errors. I recorded both in the baseline metadata instead of averaging them away.
-- **Cross-company context_precision reads 0.00 and it is a metric false negative.** The judge does not credit per-company contexts against combined references, even when the answers are correct and supported. That is a limitation of the metric setup, not of retrieval, and it is noted in [baseline_reranker.json](evals/baseline_reranker.json).
-- **Financial tables are handled pragmatically.** Table rows get flattened to `cell | cell | cell` text at ingestion. There is no deep tabular understanding here; table questions usually work because the relevant row survives flattening, not because the system parses structure.
+- **The development judge is a cheap model.** `gpt-5.4-nano` runs with `temperature` forced to 1.0 (reasoning models accept no other value), which produces a documented ±0.03 run-to-run variance on context metrics plus occasional verdict errors. I recorded both in the baseline metadata instead of averaging them away, and scored the official baseline with `gpt-5.6-terra`.
+- **A cheap judge hides some problems and invents others — the official run separated the two.** Re-scoring the identical system with `gpt-5.6-terra` ([baseline_official.json](evals/baseline_official.json)) confirmed that the cross-company context_precision zeros and one recall zero were judge false negatives (terra credits those contexts at 0.76–1.00). But the same run exposed real issues nano had been passing: q20's low faithfulness, which I had wrongly written off as judge noise, and an irrelevant rank-1 chunk on q6 (precision 1.00 → 0.64) that the answer survives only because ranks 2–4 carry the figures.
+- **Financial tables are handled pragmatically.** Table rows get flattened to `cell | cell | cell` text at ingestion. There is no deep tabular understanding here; table questions usually work because the relevant row survives flattening, not because the system parses structure. The sharpest edge is chunk boundaries decapitating tables: on q20 the correct backlog figures are present in the retrieved chunks, but as bare cells severed from their headers, so both judges refuse to attribute them (faithfulness 0.50, context_recall 0.25 in the official run). Documented as a known limit, out of scope by design.
 - **The corpus is 4 documents on purpose.** Small enough to iterate fast and re-ingest for cents, structured enough (2 companies, 2 fiscal years) to reproduce real retrieval failures. It is not a scale demonstration.
 - **Phrasing sensitivity is real.** Before the reranker, two phrasings of the same revenue question retrieved different chunks and one produced a wrong answer. The reranker fixed the case I measured, but the underlying sensitivity of embedding retrieval does not disappear.
